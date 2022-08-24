@@ -3,7 +3,7 @@ class Ball {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.nx = x;//new x
+    this.nx = x;//new x for temp use
     this.ny = y;// new y
     this.vy = 10;
     this.vx = 0;
