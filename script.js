@@ -28,11 +28,7 @@ class Ball {
       }
     });
 
-    if (this.y > 1000) {
-      this.vy *= -1;
-    }
-
-    if (this.y < 0) {
+    if (this.y > 1000 || this.y < 0) {
       this.vy *= -1;
     }
     fill("red");
