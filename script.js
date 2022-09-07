@@ -3,9 +3,9 @@ class Ball {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.nx = x;//new x for temp use
-    this.ny = y;// new y
-    this.vy = 10;
+    this.nx = x; //temp use
+    this.ny = y;
+    this.vy = 0;
     this.vx = 0;
     this.gravity = 1.05;
     this.moving = false;
@@ -17,17 +17,21 @@ class Ball {
       //decaliration
       this.vy /= this.gravity;
       this.vx /= this.gravity;
+      
+      
       //collision check
-      console.log(CheckCollision(obstacles, this))
-      this.nx += this.vx;
+      this.nx = this.x + this.vx;
       if (CheckCollision(obstacles, this)) {
         this.vx *= -1;
       }
-      this.ny += this.vy;
+      this.nx = this.x
+
+      this.ny = this.y + this.vy;
       if (CheckCollision(obstacles, this)) {
         this.vy *= -1;
       }
-
+      this.ny = this.y
+      
       //out of bounds check
       if (this.y > 1000 || this.y < 0) {
         this.vy *= -1;
@@ -38,7 +42,7 @@ class Ball {
 
       //win check 
       if (Math.sqrt((Math.pow(this.x - goal.x, 2) + Math.pow(this.y - goal.y, 2))) < 10) {
-        console.log("win")
+        Gamestate = 2
       }
 
       //update location
@@ -81,6 +85,9 @@ class Goal {
   }
 }
 
+function mouseClicked() {
+  Line.shoot();
+}
 class cLine {
   constructor() {
     this.distance = 0;
@@ -103,6 +110,7 @@ class cLine {
     }
   }
   shoot() {
+    if (ball.moving == false){
     let power = (this.distance/this.maxdistance) * .1
     
     let distX = mouseX - ball.x;
@@ -115,50 +123,98 @@ class cLine {
     let vy = speedY;
     
     
-    ball.vx = power*distX;
-    ball.vy = power*distY;
-  }
+    ball.vx = power*distX
+    ball.vy = power*distY
+    score += 1
+  }}
 }
 
 function CheckCollision(obs, self) {
+  let b = false;
   obs.forEach(ob => {
-    if (this.nx < ob.x + ob.w && this.nx + 10 > ob.x) {
-      if (this.ny < ob.y + ob.h && this.ny + 10 > ob.y) {
+    if (self.nx < ob.x + ob.w && self.nx + 10 > ob.x) {
+      if (self.ny < ob.y + ob.h && self.ny + 10 > ob.y) {
         ob.Collide(self);
-        return true;
+        b = true;
       }
-    }
-    return false;
+    }    
   });
+  return b;
 }
-
-
+//genaral var
+var Gamestate = 0;
+var highscore;
+//run var
 var ball;
 var goal;
-var obstacle
 var obstacles = []
 var Line
+var score = 0
+
+
+function addOb(x,y,w,h){
+  obstacles.push(new Wall(x,y,w,h));
+}
 
 function setup() {
+  highscore =  { score: 0, name : "Sten" }
+  Save()
+  //Load()
   createCanvas(500, 1000);
   background(225);
   goal = new Goal(100, 400);
   ball = new Ball(100, 200);
   Line = new cLine();
 
-  //create walls
-  obstacle = new Wall(100, 80, 100, 10)
-  obstacles.push(obstacle);
+  //create walls  
+  addOb(100,100,100,20)
+  addOb(400,300,50,200)
+ 
 }
 
 
 function draw() {
+  switch(Gamestate){
+    case 0: menu()
+      break
+    case 1: run()
+      break
+    case 2: gameover()
+      break
+  }
+}
+
+function run(){
   background(225);
   goal.draw();
   ball.draw();
-  obstacle.draw();
   Line.draw();
+  obstacles.forEach(ob =>{
+    ob.draw();
+  })
 }
-function mouseClicked() {
-  Line.shoot();
+
+function menu(){
+  background(225);
+  Gamestate = 1
 }
+
+function gameover(){
+  Gamestate = 0
+}
+
+function Save(){
+  let SaveObj = JSON.stringify(highscore)
+  localStorage.setItem("Save", SaveObj)
+}
+
+function Load(){
+  let SaveObj = localStorage.getItem("Save");
+  console.log(SaveObj)
+  SaveObj = JSON.parse(SaveObj);
+  highscore = SaveObj
+  console.log(highscore)
+}
+  
+
+
