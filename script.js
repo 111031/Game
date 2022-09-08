@@ -17,8 +17,8 @@ class Ball {
       //decaliration
       this.vy /= this.gravity;
       this.vx /= this.gravity;
-      
-      
+
+
       //collision check
       this.nx = this.x + this.vx;
       if (CheckCollision(obstacles, this)) {
@@ -31,7 +31,7 @@ class Ball {
         this.vy *= -1;
       }
       this.ny = this.y
-      
+
       //out of bounds check
       if (this.y > 1000 || this.y < 0) {
         this.vy *= -1;
@@ -41,7 +41,12 @@ class Ball {
       }
 
       //win check 
-      if (Math.sqrt((Math.pow(this.x - goal.x, 2) + Math.pow(this.y - goal.y, 2))) < 10) {
+      if (Math.sqrt((Math.pow(this.x - goal.x, 6) + Math.pow(this.y - goal.y, 2))) < 20 & Math.abs(this.vx) < 2 & Math.abs(this.vy) < 6) {
+        if (score < highscore.score || highscore.score == "-"){
+          highscore.score = score
+          highscore.name = name
+          Save()
+        }
         Gamestate = 2
       }
 
@@ -54,6 +59,7 @@ class Ball {
     }
 
     fill("red");
+    stroke(0)
     circle(this.x, this.y, 10)
   }
 }
@@ -70,7 +76,6 @@ class Wall {
     rect(this.x, this.y, this.w, this.h);
   }
   Collide(ball) {
-
   }
 }
 
@@ -80,13 +85,22 @@ class Goal {
     this.y = y
   }
   draw() {
+    stroke(0)
     fill("green")
     circle(this.x, this.y, 20)
   }
 }
 
 function mouseClicked() {
-  Line.shoot();
+  switch (Gamestate) {
+    case 0: Gamestate = 1
+      break
+    case 1: Line.shoot()
+      break
+    case 2: Gamestate = 0
+      Reset()
+      break
+  }
 }
 class cLine {
   constructor() {
@@ -95,7 +109,6 @@ class cLine {
   }
   draw() {
     if (ball.moving == false) {
-      line(ball.x, ball.y, mouseX, mouseY);
       this.distance = (Math.sqrt((Math.pow(ball.x - mouseX, 2) + Math.pow(ball.y - mouseY, 2))))
       if (this.distance > this.maxdistance) {
         this.distance = this.maxdistance;
@@ -107,26 +120,28 @@ class cLine {
       else {
         stroke("green")
       }
+      line(ball.x, ball.y, mouseX, mouseY);
     }
   }
   shoot() {
-    if (ball.moving == false){
-    let power = (this.distance/this.maxdistance) * .1
-    
-    let distX = mouseX - ball.x;
-    let distY = mouseY-ball.y  ;
+    if (ball.moving == false) {
+      let power = (this.distance / this.maxdistance) * .1
 
-    // time it takes over the x-axis
-    let timeX = distX / power;
-    // ..shuld be the same as over the Y-axis
-    let speedY = distY / timeX;
-    let vy = speedY;
-    
-    
-    ball.vx = power*distX
-    ball.vy = power*distY
-    score += 1
-  }}
+      let distX = mouseX - ball.x;
+      let distY = mouseY - ball.y;
+
+      // time it takes over the x-axis
+      let timeX = distX / power;
+      // ..shuld be the same as over the Y-axis
+      let speedY = distY / timeX;
+      let vy = speedY;
+
+
+      ball.vx = power * distX
+      ball.vy = power * distY
+      score += 1
+    }
+  }
 }
 
 function CheckCollision(obs, self) {
@@ -137,13 +152,14 @@ function CheckCollision(obs, self) {
         ob.Collide(self);
         b = true;
       }
-    }    
+    }
   });
   return b;
 }
 //genaral var
 var Gamestate = 0;
-var highscore;
+var highscore = { score: "-", name: "" }
+var name = "user"
 //run var
 var ball;
 var goal;
@@ -152,29 +168,20 @@ var Line
 var score = 0
 
 
-function addOb(x,y,w,h){
-  obstacles.push(new Wall(x,y,w,h));
+function addOb(x, y, w, h) {
+  obstacles.push(new Wall(x, y, w, h));
 }
 
 function setup() {
-  highscore =  { score: 0, name : "Sten" }
-  Save()
-  //Load()
+  Load()
   createCanvas(500, 1000);
   background(225);
-  goal = new Goal(100, 400);
-  ball = new Ball(100, 200);
-  Line = new cLine();
-
-  //create walls  
-  addOb(100,100,100,20)
-  addOb(400,300,50,200)
- 
+  Reset()
 }
 
 
 function draw() {
-  switch(Gamestate){
+  switch (Gamestate) {
     case 0: menu()
       break
     case 1: run()
@@ -183,38 +190,54 @@ function draw() {
       break
   }
 }
+function Reset(){
+  goal = new Goal(100, 400);
+  ball = new Ball(100, 200);
+  Line = new cLine();
+  score = 0
 
-function run(){
+  //create walls  
+  addOb(100, 100, 100, 20)
+  addOb(400, 300, 50, 200)
+}
+
+function run() {
   background(225);
   goal.draw();
   ball.draw();
-  Line.draw();
-  obstacles.forEach(ob =>{
+  obstacles.forEach(ob => {
     ob.draw();
   })
+  text(score, 20, 20)
+  Line.draw();
 }
 
-function menu(){
+function menu() {
   background(225);
-  Gamestate = 1
+  text(`Highsore: ${highscore.name} ${highscore.score}`, 250, 220)
+  text("Click to play", 250, 240)
 }
 
-function gameover(){
-  Gamestate = 0
+function gameover() {
+  textSize(20)
+  noStroke()
+  text(`Score: ${score}`, 250, 200)
+  text(`Highsore: ${highscore.name} ${highscore.score}`, 250, 220)
+  text("Click to continue", 250, 240)
 }
 
-function Save(){
+function Save() {
   let SaveObj = JSON.stringify(highscore)
   localStorage.setItem("Save", SaveObj)
 }
 
-function Load(){
+function Load() {
   let SaveObj = localStorage.getItem("Save");
   console.log(SaveObj)
   SaveObj = JSON.parse(SaveObj);
   highscore = SaveObj
   console.log(highscore)
 }
-  
+
 
 
