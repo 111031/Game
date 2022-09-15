@@ -41,13 +41,15 @@ class Ball {
       }
 
       //win check 
-      if (Math.sqrt((Math.pow(this.x - goal.x, 6) + Math.pow(this.y - goal.y, 2))) < 20 & Math.abs(this.vx) < 2 & Math.abs(this.vy) < 6) {
-        if (score < highscore.score || highscore.score == "-"){
+      if (Math.sqrt((Math.pow(this.x - goal.x, 2) + Math.pow(this.y - goal.y, 2))) < 10 & Math.abs(this.vx) < 2 & Math.abs(this.vy) < 2) {
+        if (score < highscore.score || highscore.score == "-") {
           highscore.score = score
+          console.log(name)
           highscore.name = name
           Save()
         }
         Gamestate = 2
+        gameover()
       }
 
       //update location
@@ -83,25 +85,15 @@ class Goal {
   constructor(x, y) {
     this.x = x;
     this.y = y
+    this.sprite = loadImage('Assets/Sprites/goal.png');
+    this.offset = { x: -40, y: -77 } //sprite offset
   }
   draw() {
-    stroke(0)
-    fill("green")
-    circle(this.x, this.y, 20)
+    image(this.sprite, this.x + this.offset.x, this.y + this.offset.y, this.sprite.width * 2.5, this.sprite.height * 2.5)
   }
 }
 
-function mouseClicked() {
-  switch (Gamestate) {
-    case 0: Gamestate = 1
-      break
-    case 1: Line.shoot()
-      break
-    case 2: Gamestate = 0
-      Reset()
-      break
-  }
-}
+
 class cLine {
   constructor() {
     this.distance = 0;
@@ -143,6 +135,35 @@ class cLine {
     }
   }
 }
+//input
+function keyPressed() {
+  if (keyCode === 49) {
+    switch (Gamestate) {
+      case 0:
+        Reset()
+        Gamestate = 1
+        name = input.value()
+        input.coten
+        input.remove()
+        break
+      case 2:
+        Gamestate = 0
+        menu()
+        break
+      default:
+        break
+    }
+  }
+}
+
+function mouseClicked() {
+  switch (Gamestate) {
+    case 1: Line.shoot()
+      break
+    default:
+      break
+  }
+}
 
 function CheckCollision(obs, self) {
   let b = false;
@@ -171,26 +192,30 @@ var score = 0
 function addOb(x, y, w, h) {
   obstacles.push(new Wall(x, y, w, h));
 }
+function preload() {
+  bgMusic = loadSound('Assets/Music&SFX/bgMusic.mp3');
+}
 
 function setup() {
+  bgMusic.loop()
+  Save()
   Load()
   createCanvas(500, 1000);
-  background(225);
+  menu()
   Reset()
 }
 
 
 function draw() {
   switch (Gamestate) {
-    case 0: menu()
-      break
     case 1: run()
       break
-    case 2: gameover()
+    default:
       break
   }
 }
-function Reset(){
+
+function Reset() {
   goal = new Goal(100, 400);
   ball = new Ball(100, 200);
   Line = new cLine();
@@ -215,7 +240,10 @@ function run() {
 function menu() {
   background(225);
   text(`Highsore: ${highscore.name} ${highscore.score}`, 250, 220)
-  text("Click to play", 250, 240)
+  text("Click 1 to play", 250, 240)
+  input = createInput();
+  input.position(250, 250);
+  input.value(name)
 }
 
 function gameover() {
@@ -223,7 +251,7 @@ function gameover() {
   noStroke()
   text(`Score: ${score}`, 250, 200)
   text(`Highsore: ${highscore.name} ${highscore.score}`, 250, 220)
-  text("Click to continue", 250, 240)
+  text("Click 1 to continue", 250, 240)
 }
 
 function Save() {
@@ -233,10 +261,10 @@ function Save() {
 
 function Load() {
   let SaveObj = localStorage.getItem("Save");
-  console.log(SaveObj)
   SaveObj = JSON.parse(SaveObj);
-  highscore = SaveObj
-  console.log(highscore)
+  if (SaveObj != null) {
+    highscore = SaveObj
+  }
 }
 
 
