@@ -41,16 +41,7 @@ class Ball {
       }
 
       //win check 
-      if (Math.sqrt((Math.pow(this.x - goal.x, 2) + Math.pow(this.y - goal.y, 2))) < 10 & Math.abs(this.vx) < 2 & Math.abs(this.vy) < 2) {
-        if (score < highscore.score || highscore.score == "-") {
-          highscore.score = score
-          console.log(name)
-          highscore.name = name
-          Save()
-        }
-        Gamestate = 2
-        gameover()
-      }
+      
 
       //update location
       this.x += this.vx;
@@ -85,11 +76,10 @@ class Goal {
   constructor(x, y) {
     this.x = x;
     this.y = y
-    this.sprite = loadImage('Assets/Sprites/goal.png');
     this.offset = { x: -40, y: -77 } //sprite offset
   }
   draw() {
-    image(this.sprite, this.x + this.offset.x, this.y + this.offset.y, this.sprite.width * 2.5, this.sprite.height * 2.5)
+    image(GoalSprite, this.x + this.offset.x, this.y + this.offset.y, GoalSprite.width * 2.5, GoalSprite.height * 2.5)
   }
 }
 
@@ -122,16 +112,10 @@ class cLine {
       let distX = mouseX - ball.x;
       let distY = mouseY - ball.y;
 
-      // time it takes over the x-axis
-      let timeX = distX / power;
-      // ..shuld be the same as over the Y-axis
-      let speedY = distY / timeX;
-      let vy = speedY;
-
-
       ball.vx = power * distX
       ball.vy = power * distY
       score += 1
+      ShootSFX.play()
     }
   }
 }
@@ -164,7 +148,7 @@ function mouseClicked() {
       break
   }
 }
-
+//general functions
 function CheckCollision(obs, self) {
   let b = false;
   obs.forEach(ob => {
@@ -177,6 +161,24 @@ function CheckCollision(obs, self) {
   });
   return b;
 }
+
+function addOb(x, y, w, h) {
+  obstacles.push(new Wall(x, y, w, h));
+}
+
+function WinCheck(){
+  if (Math.sqrt((Math.pow(ball.x - goal.x, 2) + Math.pow(ball.y - goal.y, 2))) < 10 & Math.abs(ball.vx) < 2 & Math.abs(ball.vy) < 2) {
+        if (score < highscore.score || highscore.score == "-") {
+          highscore.score = score
+          console.log(name)
+          highscore.name = name
+          Save()
+        }
+        Gamestate = 2
+        gameover()
+      }
+}
+
 //genaral var
 var Gamestate = 0;
 var highscore = { score: "-", name: "" }
@@ -189,11 +191,11 @@ var Line
 var score = 0
 
 
-function addOb(x, y, w, h) {
-  obstacles.push(new Wall(x, y, w, h));
-}
+//on game start
 function preload() {
+  GoalSprite = loadImage('Assets/Sprites/goal.png');
   bgMusic = loadSound('Assets/Music&SFX/bgMusic.mp3');
+  ShootSFX = loadSound('Assets/Music&SFX/ShootSFX.mp3');
 }
 
 function setup() {
@@ -203,16 +205,6 @@ function setup() {
   createCanvas(500, 1000);
   menu()
   Reset()
-}
-
-
-function draw() {
-  switch (Gamestate) {
-    case 1: run()
-      break
-    default:
-      break
-  }
 }
 
 function Reset() {
@@ -226,6 +218,16 @@ function Reset() {
   addOb(400, 300, 50, 200)
 }
 
+//draw functions
+function draw() {
+  switch (Gamestate) {
+    case 1: run()
+      break
+    default:
+      break
+  }
+}
+
 function run() {
   background(225);
   goal.draw();
@@ -235,6 +237,7 @@ function run() {
   })
   text(score, 20, 20)
   Line.draw();
+  WinCheck()
 }
 
 function menu() {
