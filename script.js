@@ -2,7 +2,7 @@
 var gamestate = 0;
 var highscore = { score: "-", name: "" };
 var name = "user";
-var bounds = { x: 500, y: 1000 };
+var bounds = { x: 500, y: 850 };
 //run var
 var ball;
 var goal;
@@ -31,6 +31,7 @@ function WinCheck() {
 //on game start
 function preload() {
   gSprite = loadImage('Assets/Sprites/goal.png');//sprite for goal
+  bSprite = loadImage('Assets/Sprites/ball.png');//sprite for ball
   bgMusic = loadSound('Assets/Music&SFX/bgMusic.mp3');
   shootSFX = loadSound('Assets/Music&SFX/ShootSFX.mp3');
 }
@@ -74,16 +75,23 @@ function setup() {
 }
 //gamestates
 function Reset() {
-  goal = new Goal(100, 400);
-  ball = new Ball(100, 200);
+  goal = new Goal(250, 800);
+  ball = new Ball(250, 100);
   Line = new cLine();
   Obstacles = [];
   score = 0;
 
   //create obstacles  
-  addOb(Booster, 100, 100, 100, 20);
-  addOb(Detractor, 400, 250, 50, 400);
-  addOb(Wall, 80, 350, 250, 20);
+  addOb(Booster, 0, 250, 20, 1000);
+  addOb(Detractor, 480, 250, 20, 1000);
+  addOb(Wall, 100, 350, 300, 20);
+  addOb(Detractor, 20, 450, 100, 20);
+  addOb(Wall, 380, 450, 100, 20);
+  addOb(Booster, 250, 350, 20, 100);
+  addOb(Wall, 100, 550, 300, 20);
+  addOb(Wall, 100, 550, 20, 200);
+  addOb(Wall, 380, 550, 20, 50);
+  addOb(Wall, 300, 650, 200, 20);
 }
 
 //draw functions
@@ -113,18 +121,18 @@ function run() {
 function menu() {
   textSize(18);
   background(225);
-  text(`Highsore: ${highscore.name} ${highscore.score}`, 250, 220);
-  text("Click 1 to play", 250, 240);
+  text(`Highsore: ${highscore.name} ${highscore.score}`, 180, 220);
+  text("Click 1 to play", 180, 240);
   input = createInput();
-  input.position(250, 250);
+  input.position(180, 250);
   input.value(name);
 }
 
 function gameover() {
   noStroke();
-  text(`Score: ${score}`, 250, 200);
-  text(`Highsore: ${highscore.name} ${highscore.score}`, 250, 220);
-  text("Click 1 to continue", 250, 240);
+  text(`Score: ${score}`, 180, 200);
+  text(`Highsore: ${highscore.name} ${highscore.score}`, 180, 220);
+  text("Click 1 to continue", 180, 240);
 }
 //save&load
 function Save() {

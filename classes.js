@@ -8,6 +8,7 @@ class Ball {
     this.vx = 0;
     this.gravity = 1.05;
     this.moving = false;
+    this.offset = { x: -17, y: -15 }; //sprite offset
   }
 
   draw() {
@@ -47,23 +48,20 @@ class Ball {
     else {
       this.moving = false;
       if (this.x < 0 || this.x > bounds.x) {
-        this.x = Math.max(Math.min(this.x), bounds.x), 0;
+        this.x = Math.max(Math.min(this.x), bounds.x-1), 0;
       }
       if (this.y < 0 || this.y > bounds.y) {
-        this.y = Math.max(Math.min(this.y), bounds.y), 0;
+        this.y = Math.max(Math.min(this.y), bounds.y-1), 0;
       }
     }
-
-    fill("red");
-    stroke(0);
-    circle(this.x, this.y, 10);
+    image(bSprite, this.x + this.offset.x, this.y + this.offset.y, bSprite.width * 0.3, bSprite.height * 0.3);
   }
 
   CheckCollision() {
     let b = false;
     obstacles.forEach(ob => {
-      if (this.nx < ob.x + ob.w && this.nx + 10 > ob.x) {
-        if (this.ny < ob.y + ob.h && this.ny + 10 > ob.y) {
+      if (this.nx - 8 < ob.x + ob.w && this.nx + 8 > ob.x) {
+        if (this.ny - 8 < ob.y + ob.h && this.ny + 8 > ob.y) {
           ob.Collide(this);
           b = true;
         }
@@ -110,8 +108,8 @@ class Booster extends Obstacle {
 class Detractor extends Obstacle {
   Collide(collider) {
     super.Collide();
-    collider.vx *= 0.8;
-    collider.vy *= 0.8;
+    collider.vx *= 0.6;
+    collider.vy *= 0.6;
   }
   draw() {
     fill("red");
