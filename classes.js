@@ -152,10 +152,9 @@ class cLine {
   shoot() {
     if (ball.moving == false) {
       let power = (this.distance / this.maxdistance) * .1
-      let distX = mouseX - ball.x;
-      let distY = mouseY - ball.y;
-      ball.vx = power * distX;
-      ball.vy = power * distY;
+      let direction = {x: mouseX - ball.x, y:  mouseY - ball.y}
+      ball.vx = power * direction.x;
+      ball.vy = power * direction.y;
       score += 1;
       shootSFX.play();
     }

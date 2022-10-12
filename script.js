@@ -7,7 +7,7 @@ var bounds = { x: 500, y: 850 };
 var ball;
 var goal;
 var obstacles = [];
-var Line;//name line not available
+var Line;//name line not available because line is a function in p5js
 var score = 0;
 
 //general functions
@@ -19,7 +19,6 @@ function WinCheck() {
   if (Math.sqrt((Math.pow(ball.x - goal.x, 2) + Math.pow(ball.y - goal.y, 2))) < 10 & Math.abs(ball.vx) < 2 & Math.abs(ball.vy) < 2) {
     if (score < highscore.score || highscore.score == "-") {
       highscore.score = score;
-      console.log(name);
       highscore.name = name;
       Save();
     }
@@ -28,12 +27,13 @@ function WinCheck() {
   }
 }
 
-//on game start
+//on game start load assets
 function preload() {
   gSprite = loadImage('Assets/Sprites/goal.png');//sprite for goal
   bSprite = loadImage('Assets/Sprites/ball.png');//sprite for ball
-  bgMusic = loadSound('Assets/Music&SFX/bgMusic.mp3');
-  shootSFX = loadSound('Assets/Music&SFX/ShootSFX.mp3');
+  bgSprite = loadImage('Assets/Sprites/bg.jpg');//sprite for background
+  bgMusic = loadSound('Assets/Music&SFX/bgMusic.mp3');//background music
+  shootSFX = loadSound('Assets/Music&SFX/ShootSFX.mp3');//sfx hit ball
 }
 
 //input
@@ -106,6 +106,7 @@ function draw() {
 
 function run() {
   background(225);
+  image(bgSprite,0,0,bounds.x,bounds.y)
   obstacles.forEach(ob => {
     ob.draw();
   })
@@ -120,7 +121,8 @@ function run() {
 
 function menu() {
   textSize(18);
-  background(225);
+  fill("white")
+  image(bgSprite,0,0)
   text(`Highsore: ${highscore.name} ${highscore.score}`, 180, 220);
   text("Click 1 to play", 180, 240);
   input = createInput();
@@ -130,6 +132,7 @@ function menu() {
 
 function gameover() {
   noStroke();
+  fill("white")
   text(`Score: ${score}`, 180, 200);
   text(`Highsore: ${highscore.name} ${highscore.score}`, 180, 220);
   text("Click 1 to continue", 180, 240);
